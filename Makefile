@@ -29,7 +29,7 @@ MODULES		= driver user
 EXTRA_INCDIR    = include /usr/include /usr/include/i386-linux-gnu
 
 # libraries used in this project, mainly provided by the SDK
-LIBS		= c gcc hal phy net80211 lwip wpa main
+LIBS		= c gcc hal phy net80211 lwip wpa main pp
 
 # compiler flags using during compilation of source files
 CFLAGS		= -Os -g -O2 -Wpointer-arith -Wundef -Werror -Wl,-EL -fno-inline-functions -nostdlib -mlongcalls -mtext-section-literals  -D__ets__ -DICACHE_FLASH
@@ -105,13 +105,9 @@ endef
 
 all: checkdirs $(TARGET_OUT) $(FW_FILE_1) $(FW_FILE_2)
 
-$(FW_FILE_1): $(TARGET_OUT)
-	$(vecho) "FW $@"
-	$(Q) $(FW_TOOL) -eo $(TARGET_OUT) $(FW_FILE_1_ARGS)
-
-$(FW_FILE_2): $(TARGET_OUT)
-	$(vecho) "FW $@"
-	$(Q) $(FW_TOOL) -eo $(TARGET_OUT) $(FW_FILE_2_ARGS)
+$(FW_BASE)/%.bin: $(TARGET_OUT) | $(FW_BASE)
+	$(vecho) "FW $(FW_BASE)/"
+	$(Q) $(ESPTOOL) elf2image -o $(FW_BASE)/ $(TARGET_OUT)
 
 $(TARGET_OUT): $(APP_AR)
 	$(vecho) "LD $@"
